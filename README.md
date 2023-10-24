@@ -1,4 +1,8 @@
 # TokenStealer
+A simple tool I wrote some time ago for stealing and playing with Windows tokens.<br>
+Parts of code have been taken and adatpted from https://github.com/FSecureLABS/incognito
+<br><br>
+TokenStealer.exe
 [+] My personal simple and stupid  Token Stealer... ;)<br>
 [+] @decoder_it 2023<br>
 
