@@ -8,7 +8,7 @@ TokenStealer.exe<br>
 
 [!] Usage:<br>
          -l: list all users token<br>
-         -e: list all users token with extended info -> <user>:<token_level (2)=Impersonation, (3)=Delegation,(P)=Primary>:<pid><br>
+         -e: list all users token with extended info -> [user]:[token_level (2)=Impersonation, (3)=Delegation,(P)=Primary>]:[pid]<br>
          -p: users token from specfic  process pid<br>
          -u: impersonate token of user <user> <br>
          -c: command to execute with token <br>
