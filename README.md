@@ -1,6 +1,9 @@
 # TokenStealer
 A simple tool I wrote some time ago for stealing and playing with Windows tokens.<br>
 Parts of code have been taken and adatpted from https://github.com/FSecureLABS/incognito
+<br>
+Clearly, you will require Impersonation or AssignPrimary privilege and Debug privilege to access all processes.<br>
+Typically, you would run the tool with the highest local privileges, such as SYSTEM.
 <br><br>
 TokenStealer.exe<br>
 [+] My personal simple and stupid  Token Stealer... ;)<br>
