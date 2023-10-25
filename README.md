@@ -24,6 +24,7 @@ TokenStealer.exe
 
 TokenStealer.exe -e -b 1 
 -> list all primary tokens
+
 TokenStealer.exe -l -p 100
 -> list all tokens in process pid 100
 
