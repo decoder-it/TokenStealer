@@ -10,7 +10,7 @@ TokenStealer.exe
 [+] My personal simple and stupid  Token Stealer... ;)<br>
 [+] v1.0 @decoder_it 2023<br>
 
-[!] Usage:<br>
+[!] Usage:
          -l: list all user's token<br>
          -e: list all user's token with extended info -> [user]:[token_level (2)=Impersonation, (3)=Delegation,(P)=Primary>]:[pid]:[SessionId]<br>
          -p: <pid> list/steal  token from specfic  process pid
