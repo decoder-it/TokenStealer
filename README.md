@@ -4,7 +4,7 @@ Parts of code have been taken and adatpted from https://github.com/FSecureLABS/i
 <br><br>
 TokenStealer.exe<br>
 [+] My personal simple and stupid  Token Stealer... ;)<br>
-[+] @decoder_it 2023<br>
+[+] v1.0 @decoder_it 2023<br>
 
 [!] Usage:<br>
          -l: list all user's token<br>
