@@ -181,45 +181,6 @@ BOOL EnablePriv(HANDLE hToken, LPCTSTR priv)
 
 	return TRUE;
 }
-int IsTokenSystem2(HANDLE tok, int* deleg)
-{
-	DWORD Size;
-	TOKEN_USER* User;
-	PSID pSID = NULL;
-	LPVOID TokenImpersonationInfo[256];
-
-	SID_IDENTIFIER_AUTHORITY SIDAuth = SECURITY_NT_AUTHORITY;
-	if (!AllocateAndInitializeSid(&SIDAuth, 1,
-		SECURITY_LOCAL_SYSTEM_RID,
-		0, 0, 0, 0, 0, 0, 0,
-		&pSID))
-		return FALSE;
-
-	Size = 0;
-	GetTokenInformation(tok, TokenUser, NULL, 0, &Size);
-	BOOL ret = FALSE;
-	if (!Size)
-		return FALSE;
-
-	User = (TOKEN_USER*)malloc(Size);
-
-	GetTokenInformation(tok, TokenUser, User, Size, &Size);
-
-	if (EqualSid(pSID, User->User.Sid)) {
-
-		ret = TRUE;
-	}
-	if (GetTokenInformation(tok, TokenImpersonationLevel, TokenImpersonationInfo, 256, &Size))
-	{
-		if (*((SECURITY_IMPERSONATION_LEVEL*)TokenImpersonationInfo) == SecurityDelegation)
-			*deleg = 1;
-		else
-			*deleg = 0;
-	}
-	free(User);
-	free(pSID);
-	return ret;
-}
 int GetTokenUser(HANDLE tok, wchar_t* SamAccount)
 {
 	DWORD Size, UserSize, DomainSize;
@@ -1224,7 +1185,7 @@ int wmain(int argc, WCHAR* argv[])
 	BOOL extended_list = FALSE;
 	int cnt = 1;
 	printf("[+] My personal simple and stupid  Token Stealer... ;)\n");
-	printf("[+] @decoder_it 2023\n\n");
+	printf("[+] v1.0 @decoder_it 2023\n\n");
 	while ((argc > 1) && (argv[cnt][0] == '-'))
 	{
 
