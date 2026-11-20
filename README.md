@@ -1,18 +1,18 @@
 # TokenStealer v2
 
 A Windows token enumerator and impersonator for authorized security testing.
+> A simple tool I wrote some time ago for stealing and playing with Windows tokens.
+> Parts of code have been taken and adatpted from https://github.com/FSecureLABS/incognito
 
 The tool walks the system handle table, finds token handles owned by other
 processes, and (when it holds the required privileges) launches a program with a
 chosen token. It is a post-exploitation tool: it assumes you already have
 administrative or `SYSTEM` access on the host.
-> A simple tool I wrote some time ago for stealing and playing with Windows tokens.
-> Parts of code have been taken and adatpted from https://github.com/FSecureLABS/incognito
 > Use only on systems you own or are explicitly authorized to test.
 
 ## Requirements
 
-- Windows (x64 recommended), Visual Studio 2022 / MSVC v143, C++14 or later.
+- Windows (x64 recommended), Visual Studio 2022 or later. This build was produced with VS 2026
 - `SeDebugPrivilege` to open other processes.
 - Either `SeAssignPrimaryTokenPrivilege` or `SeImpersonatePrivilege` to launch a
   process with a stolen token. Run elevated; `SYSTEM` sees the most tokens.
@@ -26,7 +26,7 @@ tokens belonging to its own process.
 The repository ships an MSVC solution/project (`TokenStealer.sln`). `TokenStealer_v2.cpp`
 is the current implementation.
 
-1. Open `TokenStealer.sln` in Visual Studio 2022.
+1. Open `TokenStealer.sln` in Visual Studio.
 2. Make `TokenStealer_v2.cpp` the only compiled source (remove or exclude
    `TokenStealer.cpp`, since both define `wmain`).
 3. Build **x64** (Release or Debug), Unicode character set.
@@ -92,7 +92,6 @@ If `-c` is omitted the tool lists tokens instead of launching anything. Plain
 
 | Flag | Meaning |
 |------|---------|
-| `-w` | Grant `Everyone` full access to the window station and `default` desktop. Needed only for cross-session GUI launches; it modifies system DACLs, so it is off by default. |
 | `-h`, `--help` | Show help. |
 
 ### Exit codes
@@ -268,11 +267,6 @@ TokenStealer.exe -x 5 -c cmd.exe
 
 ## Notes
 
-- Token handles are duplicated from their owning process; the tool does not
-  inject into or modify other processes.
-- `-w` permanently grants `Everyone` `GENERIC_ALL` / `WINSTA_ALL` on the current
-  window station and the `default` desktop. Enable it only when you actually
-  need a window in another session, and revert the ACL afterwards.
 - The bridge binds `127.0.0.1` only; nothing is exposed off-host.
 - The chosen port must be free; otherwise the tool reports a `bind()` failure.
 - The selected account must be able to read/execute the tool's EXE, because the
