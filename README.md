@@ -118,7 +118,7 @@ Based on decoder-it/TokenStealer. Use only on systems you are authorized to test
 Use Up/Down to select a token, Enter to run a command, Esc to cancel.
 
      #    ACCOUNT
- >   1    D4\administrator
+ >   1    CORP\administrator
      2    Font Driver Host\UMFD-0
      3    NT AUTHORITY\SYSTEM
      ...
