@@ -177,7 +177,7 @@ TokenStealer.exe -e --json > tokens.json
 
 ```csv
 account,type,level,pid,session
-D4\administrator,Primary,-,4,1
+CORP\administrator,Primary,-,4,1
 NT AUTHORITY\SYSTEM,Impersonation,Impersonation,812,0
 ```
 
@@ -249,7 +249,8 @@ Pick a token by its table index:
 TokenStealer.exe -e
 TokenStealer.exe -x 5 -c cmd.exe
 ```
-<img width="1089" height="633" alt="image" src="https://github.com/user-attachments/assets/adbb94fe-800e-4e7b-8990-814c43a0f465" />
+<img width="1409" height="857" alt="image" src="https://github.com/user-attachments/assets/92c98b3f-129d-4ef3-b504-5d6e80eb6a4a" />
+
 
 ## Output columns
 
