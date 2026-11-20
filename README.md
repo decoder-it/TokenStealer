@@ -185,7 +185,7 @@ NT AUTHORITY\SYSTEM,Impersonation,Impersonation,812,0
 
 ```json
 [
-  {"account":"D4\\administrator","type":"Primary","level":"-","pid":"4","session":"1"}
+  {"account":"CORP\\administrator","type":"Primary","level":"-","pid":"4","session":"1"}
 ]
 ```
 
