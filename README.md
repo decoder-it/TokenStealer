@@ -162,7 +162,7 @@ When the impersonation path is used and the bridge is allowed, the tool:
 your console <-> listener socket <-> bridge child <-> pipes <-> program
 ```
 
-This path uses no PowerShell and is loopback-only. `cmd.exe` over pipes has no
+This path uses `cmd.exe` or whatever you choose over pipes has no
 console, so it may not print a banner or prompt — type a command and press Enter.
 Type `exit` inside the shell to end it.
 
