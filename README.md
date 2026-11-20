@@ -249,7 +249,8 @@ Pick a token by its table index:
 TokenStealer.exe -e
 TokenStealer.exe -x 5 -c cmd.exe
 ```
-<img width="1409" height="857" alt="image" src="https://github.com/user-attachments/assets/92c98b3f-129d-4ef3-b504-5d6e80eb6a4a" />
+<img width="1404" height="1078" alt="image" src="https://github.com/user-attachments/assets/a2c919a0-0f44-47e0-ad5c-4b6c70058b88" />
+
 
 
 ## Output columns
