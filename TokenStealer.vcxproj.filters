@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="TokenStealer.cpp">
+    <ClCompile Include="TokenStealer_v2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
