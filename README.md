@@ -20,6 +20,11 @@ administrative or `SYSTEM` access on the host.
 
 Without the privileges above the tool still runs, but it can only see and use
 tokens belonging to its own process.
+## Releases
+A prebuilt x64 release is also available, so you do not have to build from  source:
+ - https://github.com/decoder-it/TokenStealer/releases
+<br>
+Download the latest `TokenStealer.exe` from the Releases page and run it from   an elevated (Administrator/SYSTEM) prompt. Building from source is only needed  if you want to modify or verify the code.
 
 ## Build
 
